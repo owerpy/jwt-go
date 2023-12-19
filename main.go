@@ -8,14 +8,14 @@ import (
 )
 
 type MyCustomClaims struct {
-	Foo string `json:"foo"`
+	ClientID string `json:"client_id"`
 	jwt.RegisteredClaims
 }
 
 func main() {
-	clientID := "ac51bba0-5b8f-4226-99f4-211b76ac0c45"
+	clientID := "bc51bba0-5b8f-4226-99f4-211b76ac0c45"
 
-	mySigningKey := []byte("code")
+	mySigningKey := []byte("my_secret_code")
 
 	token := Generate(clientID, mySigningKey)
 
@@ -29,7 +29,7 @@ func Parse(tokenString string, mySigningKey []byte) {
 	if err != nil {
 		log.Fatal(err)
 	} else if claims, ok := token.Claims.(*MyCustomClaims); ok {
-		fmt.Println(claims.Foo, claims.RegisteredClaims.Issuer)
+		fmt.Println(claims.ClientID, claims.RegisteredClaims.Issuer)
 	} else {
 		log.Fatal("unknown claims type, cannot proceed")
 	}
@@ -38,7 +38,7 @@ func Parse(tokenString string, mySigningKey []byte) {
 func Generate(clientID string, mySigningKey []byte) string {
 	// Create claims with multiple fields populated
 	claims := MyCustomClaims{
-		"bar",
+		clientID,
 		jwt.RegisteredClaims{
 			// A usual scenario is to set the expiration time relative to the current time
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
@@ -50,17 +50,17 @@ func Generate(clientID string, mySigningKey []byte) string {
 			Audience:  []string{"somebody_else"},
 		},
 	}
-	fmt.Printf("foo: %v\n", claims.Foo)
+	fmt.Printf("client_id: %v\n", claims.ClientID)
 
 	expirationTime := time.Now().Add(10 * time.Minute)
 
 	// Create claims while leaving out some of the optional fields
 	claims = MyCustomClaims{
-		"bar",
+		clientID,
 		jwt.RegisteredClaims{
 			// Also fixed dates can be used for the NumericDate
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
-			Issuer:    clientID,
+			//	Issuer:    clientID,
 		},
 	}
 
